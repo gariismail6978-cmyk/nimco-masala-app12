@@ -1,0 +1,282 @@
+{
+  "entities": {
+    "Customer": {
+      "title": "Customer",
+      "description": "Wholesale store or retail customer profile and account balance.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the business owner who owns this customer record.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "storeName": {
+          "type": "string",
+          "description": "Store or shop name.",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "Store proprietor name.",
+          "maxLength": 200
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number.",
+          "maxLength": 50
+        },
+        "whatsapp": {
+          "type": "string",
+          "description": "WhatsApp number.",
+          "maxLength": 50
+        },
+        "address": {
+          "type": "string",
+          "description": "Physical shop address.",
+          "maxLength": 500
+        },
+        "city": {
+          "type": "string",
+          "description": "City name.",
+          "maxLength": 100
+        },
+        "customerType": {
+          "type": "string",
+          "enum": ["Wholesale", "Retail", "Distributor", "Supermarket"]
+        },
+        "openingBalance": {
+          "type": "number"
+        },
+        "currentBalance": {
+          "type": "number"
+        },
+        "totalSales": {
+          "type": "number"
+        },
+        "totalPaid": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": ["ownerId", "storeName", "customerType", "openingBalance", "currentBalance", "totalSales", "totalPaid", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Wholesale inventory product (Nimco, Masala, Chips, Spices, Snacks, Dry Fruits, Grocery).",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sku": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "nameUr": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Nimco", "Masala", "Chips", "Spices", "Snacks", "Dry Fruits", "Grocery"]
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["KG", "Gram", "Packet", "Box", "Carton", "Dozen", "Jar"]
+        },
+        "purchasePrice": {
+          "type": "number"
+        },
+        "salePrice": {
+          "type": "number"
+        },
+        "currentStock": {
+          "type": "number"
+        },
+        "minStockAlert": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": ["ownerId", "sku", "name", "category", "unit", "purchasePrice", "salePrice", "currentStock", "minStockAlert", "createdAt"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Wholesale invoice and sale record.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "invoiceNumber": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "customerId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "storeName": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "subtotal": {
+          "type": "number"
+        },
+        "discount": {
+          "type": "number"
+        },
+        "additionalCharges": {
+          "type": "number"
+        },
+        "grandTotal": {
+          "type": "number"
+        },
+        "paidAmount": {
+          "type": "number"
+        },
+        "previousBalance": {
+          "type": "number"
+        },
+        "newBalance": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Paid", "Partially Paid", "Pending"]
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["Cash", "Bank Transfer", "Easypaisa", "JazzCash", "Other"]
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": ["ownerId", "invoiceNumber", "customerId", "storeName", "date", "subtotal", "grandTotal", "paidAmount", "status", "createdAt"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Customer payment collection record.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "receiptNumber": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "customerId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "storeName": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "amount": {
+          "type": "number"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["Cash", "Bank Transfer", "Easypaisa", "JazzCash", "Other"]
+        },
+        "referenceNumber": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "previousBalance": {
+          "type": "number"
+        },
+        "newBalance": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": ["ownerId", "receiptNumber", "customerId", "storeName", "date", "amount", "paymentMethod", "createdAt"]
+    },
+    "WorkspaceSnapshot": {
+      "title": "WorkspaceSnapshot",
+      "description": "Complete synchronized wholesale workspace state for an authenticated business owner.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": ["ownerId", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Wholesale customers and stores owned by a user."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Wholesale product catalog items owned by a user."
+    },
+    "/sales/{saleId}": {
+      "schema": { "$ref": "#/entities/Sale" },
+      "description": "Sales and invoice records owned by a user."
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "Payment collection records owned by a user."
+    },
+    "/workspaces/{userId}": {
+      "schema": { "$ref": "#/entities/WorkspaceSnapshot" },
+      "description": "Synchronized business workspace document per user."
+    }
+  }
+}

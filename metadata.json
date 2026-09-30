@@ -1,0 +1,6 @@
+{
+  "name": "Barkat Wholesale & Distribution ERP",
+  "description": "Bilingual (English & Urdu RTL) wholesale distribution, billing, customer ledger (Khata), inventory, and financial management system for Nimco, Masala, Snacks, and Grocery businesses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

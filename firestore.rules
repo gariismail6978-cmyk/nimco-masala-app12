@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default-Deny Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['ownerId', 'storeName', 'customerType', 'openingBalance', 'currentBalance', 'totalSales', 'totalPaid', 'createdAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'storeName', 'ownerName', 'phone', 'whatsapp', 'address', 'city', 'customerType', 'openingBalance', 'currentBalance', 'totalSales', 'totalPaid', 'notes', 'createdAt'])
+        && data.ownerId is string && data.ownerId.size() <= 128 && data.ownerId == request.auth.uid
+        && data.storeName is string && data.storeName.size() >= 1 && data.storeName.size() <= 200
+        && data.customerType in ['Wholesale', 'Retail', 'Distributor', 'Supermarket']
+        && data.openingBalance is number
+        && data.currentBalance is number
+        && data.totalSales is number
+        && data.totalPaid is number
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['ownerId', 'sku', 'name', 'category', 'unit', 'purchasePrice', 'salePrice', 'currentStock', 'minStockAlert', 'createdAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'sku', 'name', 'nameUr', 'category', 'unit', 'purchasePrice', 'salePrice', 'currentStock', 'minStockAlert', 'description', 'createdAt'])
+        && data.ownerId is string && data.ownerId.size() <= 128 && data.ownerId == request.auth.uid
+        && data.sku is string && data.sku.size() <= 64
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 200
+        && data.category in ['Nimco', 'Masala', 'Chips', 'Spices', 'Snacks', 'Dry Fruits', 'Grocery']
+        && data.unit in ['KG', 'Gram', 'Packet', 'Box', 'Carton', 'Dozen', 'Jar']
+        && data.purchasePrice is number
+        && data.salePrice is number
+        && data.currentStock is number
+        && data.minStockAlert is number
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    function isValidSale(data) {
+      return data.keys().hasAll(['ownerId', 'invoiceNumber', 'customerId', 'storeName', 'date', 'subtotal', 'grandTotal', 'paidAmount', 'status', 'createdAt'])
+        && data.ownerId is string && data.ownerId.size() <= 128 && data.ownerId == request.auth.uid
+        && data.invoiceNumber is string && data.invoiceNumber.size() <= 64
+        && data.customerId is string && data.customerId.size() <= 128
+        && data.storeName is string && data.storeName.size() <= 200
+        && data.date is string && data.date.size() <= 32
+        && data.subtotal is number
+        && data.grandTotal is number
+        && data.paidAmount is number
+        && data.status in ['Paid', 'Partially Paid', 'Pending']
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    function isValidPayment(data) {
+      return data.keys().hasAll(['ownerId', 'receiptNumber', 'customerId', 'storeName', 'date', 'amount', 'paymentMethod', 'createdAt'])
+        && data.ownerId is string && data.ownerId.size() <= 128 && data.ownerId == request.auth.uid
+        && data.receiptNumber is string && data.receiptNumber.size() <= 64
+        && data.customerId is string && data.customerId.size() <= 128
+        && data.storeName is string && data.storeName.size() <= 200
+        && data.date is string && data.date.size() <= 32
+        && data.amount is number
+        && data.paymentMethod in ['Cash', 'Bank Transfer', 'Easypaisa', 'JazzCash', 'Other']
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    match /customers/{customerId} {
+      allow get: if isSignedIn() && isValidId(customerId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(customerId) && isValidCustomer(incoming());
+      allow update: if isSignedIn() && isValidId(customerId) && isValidCustomer(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(customerId) && existing().ownerId == request.auth.uid;
+    }
+
+    match /products/{productId} {
+      allow get: if isSignedIn() && isValidId(productId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(productId) && isValidProduct(incoming());
+      allow update: if isSignedIn() && isValidId(productId) && isValidProduct(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(productId) && existing().ownerId == request.auth.uid;
+    }
+
+    match /sales/{saleId} {
+      allow get: if isSignedIn() && isValidId(saleId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(saleId) && isValidSale(incoming());
+      allow update: if isSignedIn() && isValidId(saleId) && isValidSale(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(saleId) && existing().ownerId == request.auth.uid;
+    }
+
+    match /payments/{paymentId} {
+      allow get: if isSignedIn() && isValidId(paymentId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(paymentId) && isValidPayment(incoming());
+      allow update: if isSignedIn() && isValidId(paymentId) && isValidPayment(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(paymentId) && existing().ownerId == request.auth.uid;
+    }
+
+    match /workspaces/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+      allow create, update: if isSignedIn() && isValidId(userId) && userId == request.auth.uid
+        && incoming().ownerId is string && incoming().ownerId.size() <= 128 && incoming().ownerId == request.auth.uid;
+      allow delete: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+    }
+  }
+}
